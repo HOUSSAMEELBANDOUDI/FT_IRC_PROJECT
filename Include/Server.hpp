@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 19:40:58 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/04 23:28:34 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/05 17:05:37 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,11 @@
 #include <fstream>
 #include <ctime>
 #include "Client.hpp"
+
+#define RED "\e[1;31m"
+#define WHI "\e[0;37m"
+#define GRE "\e[1;32m"
+#define YEL "\e[1;33m"
 
 class Client;
 
@@ -61,13 +66,13 @@ class Server
 	std::string GetPassword();
     //---------------//Server Methods
     void init(int port, std::string pass); //-> server initialization
-	void AcceptNewClient(); //-> accept new client
+	void accept_new_client(); //-> accept new client
 	void set_server_socket(); //->make_socket on work
 	void ReceiveNewData(int fd); //-> receive new data from a registered client
     
     static void SignalHandler(int signum); //-> signal handler
  
-	void CloseFds(); //-> close file descriptors
+	void close_fds();; //-> close file descriptors
 	void ClearClients(int fd); //-> clear client
 };
 
