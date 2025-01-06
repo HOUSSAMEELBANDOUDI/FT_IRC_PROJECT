@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 19:40:58 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/05 17:05:37 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:58:38 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,38 +42,41 @@ class Client;
 class Server
 {
   private:
-    int Port; //-> server port
-	std::string password;//->for authentication
-	int SerSocketFd; //-> server socket file descriptor
-	static bool Signal; //-> static boolean for signal
-	std::vector<Client> clients; //-> vector of clients
-	std::vector<struct pollfd> fds; //-> vector of pollfd
-	struct sockaddr_in add;//->struct is used to represent an IPv4 address and port number combination
-	struct sockaddr_in cliadd;//->for client
-	struct pollfd new_cli;//->is a structure used for monitoring file descriptors for I/O events.
+    int _Port; //-> server port
+	std::string _Password;//->for authentication
+	int _Ser_Socket_Fd; //-> server socket file descriptor
+	static bool _Signal; //-> static boolean for signal
+	std::vector<Client> _Clients; //-> vector of clients
+	std::vector<struct pollfd> _Pfds; //-> vector of pollfd
+	struct sockaddr_in _Address;//->struct is used to represent an IPv4 address and port number combination
+	struct sockaddr_in _Client_Add;//->for client
+	struct pollfd _New_connect;//->is a structure used for monitoring file descriptors for I/O events.
   public:
     Server();
     ~Server();
-    Server(Server const &src);
-    Server &operator=(Server const &src);
+    Server(Server const &other);
+    Server &operator=(Server const &other);
     //---------------//Setters
-	void SetFd(int server_fdsocket);
-	void SetPort(int port);
-	void SetPassword(std::string password);
+	void SetFd(int Ser_Socket_Fd);
+	void SetPort(int Port);
+	void SetPassword(std::string Password);
     //---------------//Getters
 	int GetFd();
 	int GetPort();
 	std::string GetPassword();
+	Client *GetClient(int fd);
     //---------------//Server Methods
-    void init(int port, std::string pass); //-> server initialization
-	void accept_new_client(); //-> accept new client
-	void set_server_socket(); //->make_socket on work
-	void ReceiveNewData(int fd); //-> receive new data from a registered client
-    
-    static void SignalHandler(int signum); //-> signal handler
+    void ft_init(int Port, std::string Password); //-> server initialization
+	void ft_accept_new_client_connect(); //-> accept new client
+	void ft_set_server_socket(); //->make_socket on work
+	void ft_Receive_New_Data(int fd); //-> receive new data from a registered client
+    //-----//REMOVE 
+	void ft_RemoveClient(int fd);
+	void ft_RemovePfds(int fd);
+    static void ft_SignalHandler(int signum); //-> signal handler
  
-	void close_fds();; //-> close file descriptors
-	void ClearClients(int fd); //-> clear client
+	void ft_close_Pfds();; //-> close file descriptors
+	void ft_Clear_Clients(int fd); //-> clear client
 };
 
 #endif
