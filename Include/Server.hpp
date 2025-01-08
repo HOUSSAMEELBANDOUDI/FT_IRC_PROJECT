@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 19:40:58 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/06 18:58:38 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:36:43 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@
 #include <fstream>
 #include <ctime>
 #include "Client.hpp"
+#include "Message.hpp"
+
 
 #define RED "\e[1;31m"
 #define WHI "\e[0;37m"
@@ -70,13 +72,27 @@ class Server
 	void ft_accept_new_client_connect(); //-> accept new client
 	void ft_set_server_socket(); //->make_socket on work
 	void ft_Receive_New_Data(int fd); //-> receive new data from a registered client
+	void ft_handleClientDisconnection(int fd);
+	void ft_processClientBuffer(int fd, const char *buff);
+	void ft_executeCommands(const std::vector<std::string> &commands, int fd);
+	//----------//Parsing Methodes
+	std::vector<std::string> ft_split_buffer(std::string buff);
+	std::vector<std::string> ft_split_command(std::string& cmd);
+	bool ft_isregistered(int fd)
+	void ft_parse_exec_cmd(std::string &command, int fd);
     //-----//REMOVE 
 	void ft_RemoveClient(int fd);
 	void ft_RemovePfds(int fd);
     static void ft_SignalHandler(int signum); //-> signal handler
  
-	void ft_close_Pfds();; //-> close file descriptors
+	void ft_close_Pfds(); //-> close file descriptors
 	void ft_Clear_Clients(int fd); //-> clear client
+	
+	//--------//AUTHENTICATION
+	void ft_client_authentication(int fd, std::string commmande);
+	std::string ft_extractPassword(std::string cmd);
+	void ft_authenticate_Client(Client *client, std::string pass, int fd);
+	void ft_sendErrorResponse(std::string error, int fd);
 };
 
 #endif

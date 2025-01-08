@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:55:38 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/06 19:37:37 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:38:23 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ void Server::SetPassword(std::string password){this->_Password = password;}
 int Server::GetFd(){return this->_Ser_Socket_Fd;}
 int Server::GetPort(){return this->_Port;}
 std::string Server::GetPassword(){return this->_Password;}
+
 Client *Server::GetClient(int fd){
 	for (size_t i = 0; i < this->_Clients.size(); i++){
 		if (this->_Clients[i].GetFd() == fd)
@@ -54,7 +55,7 @@ void Server::ft_RemoveClient(int fd) {
     for (std::vector<Client>::iterator it = _Clients.begin(); it != _Clients.end(); ++it) {
         if (it->GetFd() == fd) {
             _Clients.erase(it);
-            return;
+            return ;
         }
     }
 }
@@ -62,18 +63,18 @@ void Server::ft_RemovePfds(int fd) {
     for (std::vector<struct pollfd>::iterator it = _Pfds.begin(); it != _Pfds.end(); ++it) {
         if (it->fd == fd) {
             _Pfds.erase(it);
-            return;
+            return ;
         }
     }
 }
 
 void	Server::ft_close_Pfds(){
 	for(size_t i = 0; i < _Clients.size(); i++){
-		std::cout << RED << "Client <" << _Clients[i].GetFd() << "> Disconnected" << WHI << std::endl;
+		std::cout << RED << "Client <<" << _Clients[i].GetFd() << ">> Disconnected" << WHI << std::endl;
 		close(_Clients[i].GetFd());
 	}
 	if (_Ser_Socket_Fd != -1){	
-		std::cout << RED << "Server <" << _Ser_Socket_Fd<< "> Disconnected" << WHI << std::endl;
+		std::cout << RED << "Server <<" << _Ser_Socket_Fd<< ">> Disconnected" << WHI << std::endl;
 		close(_Ser_Socket_Fd);
 	}
 }
@@ -87,7 +88,7 @@ void Server::ft_init(int Port, std::string password)
     while(Server::_Signal == false)//-> run the server until the signal is received
     {
         if((poll(&_Pfds[0], _Pfds.size(), -1) == -1) && Server::_Signal == false) //-> wait for an event
-            throw(std::runtime_error("poll() failed"));
+            throw(std::runtime_error("Echec on poll()"));
         for (size_t i = 0; i < _Pfds.size(); i++)//-> check all file descriptors
         {
             if (_Pfds[i].revents & POLLIN)//-> check if there is data to read
@@ -127,17 +128,17 @@ void Server::ft_set_server_socket()
 void Server::ft_accept_new_client_connect()
 {
     Client client;//-> create a new client
-    memset(&_Client_Add, 0, sizeof(_Client_Add));
+    memset(&_Client_Add, 0, sizeof(_Client_Add));//->for clear struct _Client_Add
     socklen_t len = sizeof(_Client_Add);
     int accfd = accept(_Ser_Socket_Fd, (sockaddr *)&(_Client_Add), &len);//-> accept the new client
     if (accfd == -1)
     {
-        std::cout<< "Echec on accept()" << std::endl;
+        std::cout<< "Error: Failed to accept new client connection." << std::endl;
         return ;
     }
     if (fcntl(accfd, F_SETFL, O_NONBLOCK) == -1)//-> set the socket option (O_NONBLOCK) for non-blocking socket
     {
-        std::cout << "Echec on fcntl()" << std::endl;
+        std::cout << "Error: Failed to set socket to non-blocking mode." << std::endl;
         return ;
     }
     _New_connect.fd = accfd;//-> add the client socket to the pollfd
@@ -153,18 +154,155 @@ void Server::ft_accept_new_client_connect()
 
 void Server::ft_Receive_New_Data(int fd)
 {
-    std::vector<std::string> command;
-    char buffer[1024];//-> buffer for the received data
-    memset(buffer, 0, sizeof(buffer));//-> clear the buffer
-    Client *client = GetClient(fd);
-    ssize_t bits = recv(fd, buffer, sizeof(buffer) - 1 , 0);//-> receive the data
-    if (bits <= 0)
-    {
-        std::cout << RED << "Client <<" << fd << ">> Disconnected" << WHI << std::endl;
-        //remove channels;
-        ft_RemoveClient(fd);
-        ft_RemovePfds(fd);
-        close(fd);
-        
+    char buff[1024];
+    memset(buff, 0, sizeof(buff));
+
+    ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0);
+
+    if (bytes <= 0) {
+        ft_handleClientDisconnection(fd);
+    } else {
+        ft_processClientBuffer(fd, buff);
     }
 }
+
+void Server::ft_handleClientDisconnection(int fd)
+{
+    std::cout << RED << "Client <" << fd << "> Disconnected" << WHI << std::endl;
+   //add function for RmoveChannels(fd);
+    ft_RemoveClient(fd);
+    ft_RemovePfds(fd);
+    close(fd);
+}
+
+void Server::ft_processClientBuffer(int fd, const char *buff)
+{
+    Client *client = GetClient(fd);
+    if (!client) return;
+
+    client->setBuffer(buff);
+
+    if (client->getBuffer().find_first_of("\r\n") == std::string::npos) {
+        return;  // Incomplete command, wait for more data
+    }
+
+    std::vector<std::string> commands = ft_split_buffer(client->getBuffer());
+    ft_executeCommands(commands, fd);
+
+    // Clear the client's buffer if the client still exists  
+    if (GetClient(fd)) {
+        client->clearBuffer();
+    }
+}
+
+void Server::ft_executeCommands(const std::vector<std::string> &commands, int fd)
+{
+    for (size_t i = 0; i < commands.size(); ++i) {
+        parse_exec_cmd(commands[i], fd);
+    }
+}
+
+
+std::vector<std::string> Server::ft_split_buffer(std::string buff)
+{
+    std::vector<std::string> Vbuff;
+    std::string data;
+    std::istringstream iss(buff);
+    while(std::getline(iss, data))
+    {
+        size_t pos = data.find_first_of("\r\n");
+        if (pos != std::string::npos)
+            data = data.substr(0, pos);
+        Vbuff.push_back(data);
+    }
+    return (Vbuff);
+}
+
+std::vector<std::string> Server::ft_split_command(std::string& command)
+{
+	std::vector<std::string> Vcmd;
+	std::istringstream iss(command);
+	std::string data;
+	while(iss >> data)
+	{
+		Vcmd.push_back(data);
+		data.clear();
+	}
+	return Vcmd;
+}
+bool Server::ft_isregistered(int fd)
+{
+	if (!GetClient(fd) || GetClient(fd)->GetNickName().empty() || GetClient(fd)->GetUserName().empty() || GetClient(fd)->GetNickName() == "*"  || !GetClient(fd)->GetLogedIn())
+		return false;
+	return true;
+}
+
+void Server::parse_exec_cmd(std::string &cmd, int fd)
+{
+    if (cmd.empty())
+        return ;
+
+    // Trim leading whitespace
+    size_t found = cmd.find_first_not_of(" \t\v");
+    if (found != std::string::npos)
+        cmd = cmd.substr(found);
+
+    // Split the command into tokens
+    std::vector<std::string> splited_cmd = ft_split_command(cmd);
+    if (splited_cmd.empty())
+        return;
+
+    // Normalize the command name (convert to uppercase for comparison)
+    std::string command = splited_cmd[0];
+    std::transform(command.begin(), command.end(), command.begin(), ::toupper);
+
+    // Handle authentication commands
+    if (command == "BONG")
+        return;
+    if (command == "PASS")
+    {
+        client_authen(fd, cmd);
+        return;
+    }
+    if (command == "NICK")
+    {
+        set_nickname(cmd, fd);
+        return;
+    }
+    if (command == "USER")
+    {
+        set_username(cmd, fd);
+        return;
+    }
+    if (command == "QUIT")
+    {
+        QUIT(cmd, fd);
+        return;
+    }
+
+    // Check registration status
+    if (!ft_isregistered(fd))
+    {
+        ft_sendErrorResponse(ERR_NOTREGISTERED(std::string("*")), fd);
+        return;
+    }
+
+    // Handle registered user commands
+    if (command == "KICK")
+        KICK(cmd, fd);
+    else if (command == "JOIN")
+        JOIN(cmd, fd);
+    else if (command == "TOPIC")
+        Topic(cmd, fd);
+    else if (command == "MODE")
+        mode_command(cmd, fd);
+    else if (command == "PART")
+        PART(cmd, fd);
+    else if (command == "PRIVMSG")
+        PRIVMSG(cmd, fd);
+    else if (command == "INVITE")
+        Invite(cmd, fd);
+    else
+        ft_sendErrorResponse(ERR_CMDNOTFOUND(GetClient(fd)->GetNickName(), command), fd);
+}
+
