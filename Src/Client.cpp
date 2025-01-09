@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:07:05 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/08 20:35:34 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/08 23:36:48 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,4 +54,4 @@ bool Client::getRegistered(){return this->_registered;}
 std::string Client::GetNickName(){return this->_Nickname;}
 std::string Client::GetUserName(){return this->_Username;}
 //--------//other methode
-void Client::clearBuffer(){buffer.clear();}
+void Client::clearBuffer(){_Buffer.clear();}

@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:55:38 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/08 20:38:23 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/08 23:44:30 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,10 +195,10 @@ void Server::ft_processClientBuffer(int fd, const char *buff)
     }
 }
 
-void Server::ft_executeCommands(const std::vector<std::string> &commands, int fd)
+void Server::ft_executeCommands(std::vector<std::string> &commands, int fd)
 {
     for (size_t i = 0; i < commands.size(); ++i) {
-        parse_exec_cmd(commands[i], fd);
+        ft_parse_exec_cmd(commands[i], fd);
     }
 }
 
@@ -232,12 +232,12 @@ std::vector<std::string> Server::ft_split_command(std::string& command)
 }
 bool Server::ft_isregistered(int fd)
 {
-	if (!GetClient(fd) || GetClient(fd)->GetNickName().empty() || GetClient(fd)->GetUserName().empty() || GetClient(fd)->GetNickName() == "*"  || !GetClient(fd)->GetLogedIn())
+	if (!GetClient(fd) || GetClient(fd)->GetNickName().empty() || GetClient(fd)->GetUserName().empty() || GetClient(fd)->GetNickName() == "*"  || !GetClient(fd)->getRegistered())
 		return false;
 	return true;
 }
 
-void Server::parse_exec_cmd(std::string &cmd, int fd)
+void Server::ft_parse_exec_cmd(std::string &cmd, int fd)
 {
     if (cmd.empty())
         return ;
@@ -261,22 +261,22 @@ void Server::parse_exec_cmd(std::string &cmd, int fd)
         return;
     if (command == "PASS")
     {
-        client_authen(fd, cmd);
+        //client_authen(fd, cmd);
         return;
     }
     if (command == "NICK")
     {
-        set_nickname(cmd, fd);
+        //set_nickname(cmd, fd);
         return;
     }
     if (command == "USER")
     {
-        set_username(cmd, fd);
+        //set_username(cmd, fd);
         return;
     }
     if (command == "QUIT")
     {
-        QUIT(cmd, fd);
+        //QUIT(cmd, fd);
         return;
     }
 
@@ -287,22 +287,22 @@ void Server::parse_exec_cmd(std::string &cmd, int fd)
         return;
     }
 
-    // Handle registered user commands
-    if (command == "KICK")
-        KICK(cmd, fd);
-    else if (command == "JOIN")
-        JOIN(cmd, fd);
-    else if (command == "TOPIC")
-        Topic(cmd, fd);
-    else if (command == "MODE")
-        mode_command(cmd, fd);
-    else if (command == "PART")
-        PART(cmd, fd);
-    else if (command == "PRIVMSG")
-        PRIVMSG(cmd, fd);
-    else if (command == "INVITE")
-        Invite(cmd, fd);
-    else
-        ft_sendErrorResponse(ERR_CMDNOTFOUND(GetClient(fd)->GetNickName(), command), fd);
+    // // Handle registered user commands
+    // if (command == "KICK")
+    //     //KICK(cmd, fd);
+    // else if (command == "JOIN")
+    //     //JOIN(cmd, fd);
+    // else if (command == "TOPIC")
+    //     //Topic(cmd, fd);
+    // else if (command == "MODE")
+    //    // mode_command(cmd, fd);
+    // else if (command == "PART")
+    //    // PART(cmd, fd);
+    // else if (command == "PRIVMSG")
+    //    // PRIVMSG(cmd, fd);
+    // else if (command == "INVITE")
+    //     //Invite(cmd, fd);
+    // else
+    //     ft_sendErrorResponse(ERR_CMDNOTFOUND(GetClient(fd)->GetNickName(), command), fd);
 }
 

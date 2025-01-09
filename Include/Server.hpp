@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 19:40:58 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/08 20:36:43 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/08 23:43:06 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,11 +74,11 @@ class Server
 	void ft_Receive_New_Data(int fd); //-> receive new data from a registered client
 	void ft_handleClientDisconnection(int fd);
 	void ft_processClientBuffer(int fd, const char *buff);
-	void ft_executeCommands(const std::vector<std::string> &commands, int fd);
+	void ft_executeCommands( std::vector<std::string> &commands, int fd);
 	//----------//Parsing Methodes
 	std::vector<std::string> ft_split_buffer(std::string buff);
 	std::vector<std::string> ft_split_command(std::string& cmd);
-	bool ft_isregistered(int fd)
+	bool ft_isregistered(int fd);
 	void ft_parse_exec_cmd(std::string &command, int fd);
     //-----//REMOVE 
 	void ft_RemoveClient(int fd);
