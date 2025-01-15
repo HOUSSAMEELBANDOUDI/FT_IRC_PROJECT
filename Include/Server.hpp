@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 19:40:58 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/08 23:43:06 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/14 21:23:10 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ class Server
     //---------------//Server Methods
     void ft_init(int Port, std::string Password); //-> server initialization
 	void ft_accept_new_client_connect(); //-> accept new client
+	void ft_register_client(int accfd);
 	void ft_set_server_socket(); //->make_socket on work
 	void ft_Receive_New_Data(int fd); //-> receive new data from a registered client
 	void ft_handleClientDisconnection(int fd);
@@ -80,6 +81,7 @@ class Server
 	std::vector<std::string> ft_split_command(std::string& cmd);
 	bool ft_isregistered(int fd);
 	void ft_parse_exec_cmd(std::string &command, int fd);
+	bool ft_isValid_Port(std::string port);
     //-----//REMOVE 
 	void ft_RemoveClient(int fd);
 	void ft_RemovePfds(int fd);
@@ -93,6 +95,7 @@ class Server
 	std::string ft_extractPassword(std::string cmd);
 	void ft_authenticate_Client(Client *client, std::string pass, int fd);
 	void ft_sendErrorResponse(std::string error, int fd);
+	void ft_put_username(std::string& cmd, int fd);
 };
 
 #endif

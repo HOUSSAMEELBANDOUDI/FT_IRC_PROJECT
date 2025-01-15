@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 19:54:33 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/08 20:33:00 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/14 21:12:44 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Client
     bool _registered;
     std::string _Nickname;
     std::string _Username;
+    bool _logedin;
     
   public:
     Client();
@@ -37,6 +38,7 @@ class Client
   void SetRegistered(bool value);
   void SetNickname(std::string& Nickname);
   void SetUsername(std::string& Username);
+  void setLogedin(bool value);
     //---------------//Getters
 	int GetFd();
   std::string GetIpadd();
@@ -44,6 +46,7 @@ class Client
   bool getRegistered();
   std::string GetNickName();
   std::string GetUserName();
+  bool 		GetLogedIn();
   //---------//other methods
   void clearBuffer();
   

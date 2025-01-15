@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 23:43:34 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/08 16:05:25 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/14 21:23:32 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,8 @@
 void Server::ft_client_authentication(int fd, std::string cmd)
 {
     Client *client = GetClient(fd);
-    
     // Extract password from the command
     std::string pass = ft_extractPassword(cmd);
-    
     // Check if there is enough data or if it's empty
     if (pass.empty())
     {
@@ -39,7 +37,6 @@ std::string Server::ft_extractPassword(std::string cmd)
     // Remove "PASS " prefix from the command and trim any whitespace
     cmd = cmd.substr(4);  // Remove "PASS " prefix
     size_t pos = cmd.find_first_not_of("\t\v ");  // Find first non-whitespace character
-    
     if (pos != std::string::npos) {
         cmd = cmd.substr(pos);  // Remove leading whitespace
         if (cmd[0] == ':')
@@ -66,4 +63,25 @@ void Server::ft_authenticate_Client(Client *client, std::string pass, int fd)
         //  send success response
     else
         ft_sendErrorResponse(ERR_INCORPASS("*"), fd);
+}
+
+void	Server::ft_put_username(std::string& cmd, int fd)
+{
+	std::vector<std::string> Vcmd = ft_split_command(cmd);
+
+	Client *client = GetClient(fd); 
+	if((client && Vcmd.size() < 5))
+		{ft_sendErrorResponse(ERR_NOTENOUGHPARAM(client->GetNickName()), fd); return; }
+	if(!client  || !client->getRegistered())
+		ft_sendErrorResponse(ERR_NOTREGISTERED(std::string("*")), fd);
+	else if (client && !client->GetUserName().empty())
+		{ft_sendErrorResponse(ERR_ALREADYREGISTERED(client->GetNickName()), fd); return;}
+	else
+		client->SetUsername(Vcmd[1]);
+	if(client && client->getRegistered() && !client->GetUserName().empty() && !client->GetNickName().empty()
+        && client->GetNickName() != "*"  && !client->GetLogedIn())
+	{
+		client->setLogedin(true);
+		ft_sendErrorResponse(RPL_CONNECTED(client->GetNickName()), fd);
+	}
 }
