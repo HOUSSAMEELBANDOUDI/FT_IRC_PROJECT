@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 23:43:34 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/14 21:23:32 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/15 22:29:27 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,3 +85,119 @@ void	Server::ft_put_username(std::string& cmd, int fd)
 		ft_sendErrorResponse(RPL_CONNECTED(client->GetNickName()), fd);
 	}
 }
+
+bool Server::ft_isValidNickname(const std::string& nickname) const
+{
+    if (nickname.empty() || nickname[0] == '&' || nickname[0] == '#' || nickname[0] == ':')
+        return false;
+
+    for (size_t i = 0; i < nickname.size(); i++)
+    {
+        if (!std::isalnum(nickname[i]) && nickname[i] != '_')
+            return false;
+    }
+    return true;
+}
+
+bool Server::ft_isNicknameInUse(std::string& nickname) {
+    for (std::vector<Client>::iterator it  = _Clients.begin(); it != _Clients.end(); ++it) {
+        if (it->GetNickName() == nickname)
+            return true;
+    }
+    return false;
+}
+
+void Server::ft_setNickname(std::string& cmd, int fd)
+{
+    std::string nickname = ft_extractNickname(cmd);
+    if (nickname.empty())
+    {
+       ft_sendErrorResponse(ERR_NOTENOUGHPARAM("*"), fd);
+        return;
+    }
+
+    Client* cli = GetClient(fd);
+    if (cli == NULL) // Use NULL instead of nullptr
+        return;
+
+    if (ft_isNicknameInUse(nickname) && cli->GetNickName() != nickname)
+    {
+        ft_handleNicknameInUse(cli, nickname, fd);
+        return;
+    }
+
+    if (!ft_isValidNickname(nickname))
+    {
+       ft_sendErrorResponse(ERR_ERRONEUSNICK(nickname), fd);
+        return;
+    }
+
+    ft_processNicknameChange(cli, nickname, fd);
+}
+
+std::string Server::ft_extractNickname(const std::string& cmd) const
+{
+    std::string nickname = cmd.substr(4); // Remove "NICK"
+    size_t pos = nickname.find_first_not_of("\t\v ");
+    if (pos != std::string::npos)
+    {
+        nickname = nickname.substr(pos);
+        if (!nickname.empty() && nickname[0] == ':')
+            nickname.erase(nickname.begin());
+    }
+    return nickname;
+}
+
+void Server::ft_handleNicknameInUse(Client* cli,  std::string& nickname, int fd)
+{
+    std::string temp = "*";
+    if (cli->GetNickName().empty())
+        cli->SetNickname(temp);
+
+   ft_sendErrorResponse(ERR_NICKINUSE(nickname), fd);
+}
+
+void Server::ft_processNicknameChange(Client* cli,  std::string& nickname, int fd)
+{
+    std::string oldNickname = cli->GetNickName();
+
+    // Update nickname
+    cli->SetNickname(nickname);
+    //ft_updateChannelsNickname(oldNickname, nickname);//->update nikname in chaneel
+
+    if (!oldNickname.empty() && oldNickname != nickname)
+    {
+        ft_handleNicknameUpdate(cli, oldNickname, nickname, fd);
+    }
+
+    if (cli->getRegistered() && !cli->GetLogedIn() && !cli->GetUserName().empty())
+    {
+        cli->setLogedin(true);
+       ft_sendErrorResponse(RPL_CONNECTED(nickname), fd);
+    }
+}
+
+// void Server::ft_updateChannelsNickname(const std::string& oldNickname, const std::string& newNickname)
+// {
+//     for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+//     {
+//         Client* cl = it->GetClientInChannel(oldNickname);
+//         if (cl != NULL)
+//             cl->SetNickname(newNickname);
+//     }
+// }
+
+void Server::ft_handleNicknameUpdate(Client* cli, const std::string& oldNickname, const std::string& newNickname, int fd)
+{
+    if (oldNickname == "*" && !cli->GetUserName().empty())
+    {
+        cli->setLogedin(true);
+       ft_sendErrorResponse(RPL_CONNECTED(newNickname), fd);
+       ft_sendErrorResponse(RPL_NICKCHANGE(oldNickname, newNickname), fd);
+    }
+    else
+    {
+       ft_sendErrorResponse(RPL_NICKCHANGE(oldNickname, newNickname), fd);
+    }
+}
+

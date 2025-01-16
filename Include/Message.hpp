@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 15:49:23 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/14 21:08:10 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/15 22:09:24 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,5 +23,8 @@
 #define ERR_NOTREGISTERED(nickname) (std::string(": 451 ") + nickname + " :You haven't Registered!" + ENL)
 #define ERR_CMDNOTFOUND(nickname, command) (std::string(": 421 ") + nickname + " " + command + " :Command Not Found" + ENL)
 #define RPL_CONNECTED(nickname) (": 001 " + nickname + " : Welcome to the IRC server!" + ENL)
-#endif
+#define RPL_NICKCHANGE(oldnickname, nickname) (":" + oldnickname + " NICK " + nickname + ENL)
+#define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + ENL)
+#define ERR_NICKINUSE(nickname) (": 433 " + nickname + " :Nickname is already in use" + ENL)
 
+#endif

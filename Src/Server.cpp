@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:55:38 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/14 20:59:59 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/15 22:07:53 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,7 +271,7 @@ void Server::ft_parse_exec_cmd(std::string &cmd, int fd)
     }
     if (command == "NICK")
     {
-        //set_nickname(cmd, fd);
+        ft_setNickname(cmd, fd);
         return;
     }
     if (command == "USER")

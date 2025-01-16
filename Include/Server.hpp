@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 19:40:58 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/14 21:23:10 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/15 22:29:36 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,16 @@ class Server
 	void ft_authenticate_Client(Client *client, std::string pass, int fd);
 	void ft_sendErrorResponse(std::string error, int fd);
 	void ft_put_username(std::string& cmd, int fd);
+	bool ft_isValidNickname(const std::string& nickname) const;
+	bool ft_isNicknameInUse(std::string& nickname);
+	void ft_setNickname( std::string& cmd, int fd);
+	std::string ft_extractNickname(const std::string& cmd) const;
+	void ft_handleNicknameInUse(Client* cli,  std::string& nickname, int fd);
+	void ft_processNicknameChange(Client* cli,  std::string& nickname, int fd);
+	void ft_updateChannelsNickname(const std::string& oldNickname, const std::string& newNickname);
+	void ft_handleNicknameUpdate(Client* cli, const std::string& oldNickname, const std::string& newNickname, int fd);
+
+
 };
 
 #endif
