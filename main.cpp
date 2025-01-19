@@ -6,7 +6,7 @@
 /*   By: hel-band <hel-band@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 23:27:47 by hel-band          #+#    #+#             */
-/*   Updated: 2025/01/15 12:36:27 by hel-band         ###   ########.fr       */
+/*   Updated: 2025/01/19 10:31:47 by hel-band         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@ int main(int ac, char **av)
 {
 	Server server;
 	if (ac != 3)
-		{std::cout << " For Use: " << av[0] << " Enter: <port number> <password>" << std::endl; return 1;}
+	{
+		std::cout << " For Use : " << av[0] << " Enter: <port number> <password>" << std::endl; 
+		return 1;
+	}
 	std::cout << "**** SERVER ****" << std::endl;
 	try
 	{
